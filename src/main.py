@@ -43,6 +43,7 @@ class Application:
         self.frame_text = tk.Frame(master = self.window, relief = tk.RAISED, bd = 1)
         self.text_editor = tk.Text(self.frame_text, height = 30, width = 80)
         self.text_output = tk.Text(self.frame_text, background = "Black", foreground = "White", height = 7, width = 80)
+        self.text_editor.tag_configure("keyword", foreground = "red")
 
         #adjust buttons
         self.button_save.grid(row = 0, column = 0, sticky = "ew", padx = 5, pady = 5)
@@ -56,6 +57,10 @@ class Application:
 
         self.text_output.insert(tk.END, 'Script Result:\n')
         self.text_output.config(state = 'disabled')
+        
+        self.text_editor.bind("<space>", self.swift_keywords_highlight)
+        self.text_editor.insert(tk.END, "#!/usr/bin/env python3\n")
+
         self.update()
 
     def save_script_to_file(self):
@@ -66,10 +71,11 @@ class Application:
             return
         with open(file_path, "w") as output_file:
             text = self.text_editor.get(1.0, tk.END)
-            output_file.write("#!/usr/bin/env python3\n")
             output_file.write(text)
 
         self.window.title(f"Text Editor Application - {file_path}")
+        self.current_script_file_name = file_path.split('/')[-1]
+        print(self.current_script_file_name)
 
     def run_script_from_file(self):
         # start thread so main window not going to freeze
@@ -77,7 +83,7 @@ class Application:
         self.label_is_script_executing.set("Script Exec\nYes")
 
     def run_script(self):
-        sub_proc = subprocess.Popen(['python3', '-u','script.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sub_proc = subprocess.Popen(['python3', '-u',self.current_script_file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         thr1 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stdout]).start()
         thr2 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stderr]).start()
 
@@ -105,6 +111,16 @@ class Application:
         for line in iter(pipe.readline, b''):
             self.q.put((pipe, line))
         self.q.put((pipe, None))
+
+    def swift_keywords_highlight(self, event):
+        index = self.text_editor.search(r'\s', "insert", backwards=True, regexp=True)
+        if index == "":
+            index = "1.0"
+        else:
+            index = self.text_editor.index("%s+1c" % index)
+        word = self.text_editor.get(index, "insert")
+        if self.swift_keywords.is_keyword(word):
+            self.text_editor.tag_add("keyword", index, "%s+%dc" % (index,len(word)))
 
 
 
