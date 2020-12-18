@@ -4,6 +4,7 @@ import subprocess
 import threading
 import time
 from queue import *
+import keywords
 
 class Application:
 
@@ -12,6 +13,7 @@ class Application:
         self.current_script_file_name = None
         self.q = Queue()
         self.return_code = None;
+        self.swift_keywords = keywords.SwiftKeywords()
 
         self.window = master
         self.window.title("TK")
@@ -103,6 +105,8 @@ class Application:
         for line in iter(pipe.readline, b''):
             self.q.put((pipe, line))
         self.q.put((pipe, None))
+
+
 
 if __name__ == '__main__':
     root = tk.Tk()
