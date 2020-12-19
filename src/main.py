@@ -21,13 +21,17 @@ class Application:
         self.window.minsize(680,680)
         self.window.configure(bg = "#1c3e7b")
 
+        # load icons for buttons
+        self.run_icon = tk.PhotoImage(file = "rsz_run.png")
+        self.save_icon = tk.PhotoImage(file = "rsz_save.png")
+
         # buttons
         self.frame_buttons = tk.Frame(master= self.window, height = 200, width = 200, bg = "#1c3e7b")
-        self.button_save = tk.Button(master = self.frame_buttons, text = "Save", bg = "#1c3e7b", command = self.save_script_to_file)
-        self.button_run = tk.Button(master = self.frame_buttons, text = "Run", bg = "#1c3e7b", command = self.run_script_from_file)
+        self.button_save = tk.Button(master = self.frame_buttons, image = self.save_icon, bg = "#1c3e7b",activebackground = "#1c3e60", relief = "flat", highlightthickness = 0, bd = 0, command = self.save_script_to_file)
+        self.button_run = tk.Button(master = self.frame_buttons, image = self.run_icon, bg = "#1c3e7b", activebackground = "#1c3e60", relief = "flat", highlightthickness = 0, bd = 0, command = self.run_script_from_file)
         self.frame_buttons.pack(side = "top", fill = "both", expand = False)
-        self.button_run.pack(side = "left", padx = 5, pady = 5)
-        self.button_save.pack(side = "left", padx = 5, pady = 5)
+        self.button_run.pack(side = "left")
+        self.button_save.pack(side = "left")
 
         # editor pane and output pane
         self.text_editor = tk.Text(self.window, bg = "#232614", foreground = "White", insertbackground='white')
