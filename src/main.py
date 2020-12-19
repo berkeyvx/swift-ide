@@ -5,6 +5,7 @@ import threading
 import time
 from queue import *
 import keywords
+import os
 
 class Application:
 
@@ -18,31 +19,32 @@ class Application:
         self.window = master
         self.window.title("JetBrains Swift Script Executing Tool")
         self.window.minsize(680,680)
+        self.window.configure(bg = "#1c3e7b")
 
-        self.frame_buttons = tk.Frame(master= self.window, height = 200, width = 200)
-        self.button_save = tk.Button(master = self.frame_buttons, text = "Save", command = self.save_script_to_file)
-        self.button_run = tk.Button(master = self.frame_buttons, text = "Run", command = self.run_script_from_file)
+        self.frame_buttons = tk.Frame(master= self.window, height = 200, width = 200, bg = "#1c3e7b")
+        self.button_save = tk.Button(master = self.frame_buttons, text = "Save", bg = "#1c3e7b", command = self.save_script_to_file)
+        self.button_run = tk.Button(master = self.frame_buttons, text = "Run", bg = "#1c3e7b", command = self.run_script_from_file)
         self.frame_buttons.pack(side = "top", fill = "both", expand = False)
         self.button_run.pack(side = "left", padx = 5, pady = 5)
         self.button_save.pack(side = "left", padx = 5, pady = 5)
 
-        self.text_editor = tk.Text(self.window)
+        self.text_editor = tk.Text(self.window, bg = "#232614", foreground = "White", insertbackground='white')
         self.text_editor.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
         self.text_editor.tag_configure("keyword", foreground = "red")
         self.text_output = tk.Text(self.window, background = "Black", foreground = "White", height = 8)
         self.text_output.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
 
 
-        self.frame_label = tk.Frame(master = self.window, bg = "Cyan")
+        self.frame_label = tk.Frame(master = self.window, bg = "#1c3e7b")
         self.frame_label.pack(side = "top", expand = False, fill = "both")
 
         self.label_returncode_update = tk.StringVar()
-        self.label_returncode = tk.Label(master = self.frame_label, textvariable = self.label_returncode_update, relief = tk.RAISED)
+        self.label_returncode = tk.Label(master = self.frame_label, textvariable = self.label_returncode_update, relief = tk.RAISED, bg = "#0000a0", foreground = "#ffffff")
         self.label_returncode_update.set("Return Code\n")
         self.label_returncode.pack(side = "left", padx = 3, pady = 3)
 
         self.label_is_script_executing = tk.StringVar()
-        self.label_script_executing = tk.Label(master = self.frame_label, textvariable = self.label_is_script_executing, relief = tk.RAISED)
+        self.label_script_executing = tk.Label(master = self.frame_label, textvariable = self.label_is_script_executing, relief = tk.RAISED, bg = "#0000a0", foreground = "#ffffff")
         self.label_is_script_executing.set("Script Exec\nNo")
         self.label_script_executing.pack(side = "left", padx = 3, pady = 3)
 
@@ -55,26 +57,23 @@ class Application:
         self.update()
 
     def save_script_to_file(self):
-        file_path = asksaveasfilename(
-            filetypes=[("Python Scripts", "*.py"), ("Kotlin Scripts", "*.kts*")]
-        )
-        if not file_path:
-            return
-        with open(file_path, "w") as output_file:
+        cwd = os.getcwd()
+        file_name = cwd + "/script2.python" 
+        with open(file_name, "w") as output_file:
             text = self.text_editor.get(1.0, tk.END)
             output_file.write(text)
 
-        self.window.title(f"Text Editor Application - {file_path}")
-        self.current_script_file_name = file_path.split('/')[-1]
-        print(self.current_script_file_name)
+        self.current_script_file_name = file_name.split('/')[-1]
+
 
     def run_script_from_file(self):
+        self.save_script_to_file()
         # start thread so main window not going to freeze
         threading.Thread(target=self.run_script).start()
         self.label_is_script_executing.set("Script Exec\nYes")
 
     def run_script(self):
-        sub_proc = subprocess.Popen(['python3', '-u', 'script.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sub_proc = subprocess.Popen(['python3', '-u', self.current_script_file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         thr1 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stdout]).start()
         thr2 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stderr]).start()
 
