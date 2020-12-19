@@ -85,9 +85,8 @@ class Application:
         self.button_run.config(state = 'disabled')
 
     def run_script(self):
-        sub_proc = subprocess.Popen(['swift', 'script2.swift'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        thr1 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stdout]).start()
-        thr2 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stderr]).start()
+        sub_proc = subprocess.Popen(['stdbuf', '-o0','swift', 'script2.swift'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        thr1 = threading.Thread(target=self.pipe_reader, args=[sub_proc]).start()
 
         poll = sub_proc.poll()
         while poll == None:
@@ -101,7 +100,7 @@ class Application:
 
     def update(self):
         while not self.q.empty():
-            source, line = self.q.get()
+            line = self.q.get()
             if line is None:
                 line = ""
             self.text_output.config(state = 'normal')
@@ -110,10 +109,13 @@ class Application:
             self.text_output.config(state = 'disabled')
         self.window.after(100, self.update)
 
-    def pipe_reader(self, pipe):
-        for line in iter(pipe.readline, b''):
-            self.q.put((pipe, line))
-        self.q.put((pipe, None))
+    def pipe_reader(self, process):
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                self.q.put(output)
 
     def swift_keywords_highlight(self, event):
         index = self.text_editor.search(r'\s', "insert", backwards=True, regexp=True)
