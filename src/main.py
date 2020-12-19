@@ -59,18 +59,17 @@ class Application:
         self.label_script_executing.pack(side = "left", padx = 3, pady = 3)
 
 
-        # pane 
+        # pane config
         self.text_output.insert(tk.END, 'Script Result:\n')
         self.text_output.config(state = 'disabled')        
         self.text_editor.bind("<space>", self.swift_keywords_highlight)
-        self.text_editor.insert(tk.END, "#!/usr/bin/env python3\n")
 
         # handle output pane
         self.update()
 
     def save_script_to_file(self):
         cwd = os.getcwd()
-        file_name = cwd + "/script2.python" 
+        file_name = cwd + "/script2.swift" 
         with open(file_name, "w") as output_file:
             text = self.text_editor.get(1.0, tk.END)
             output_file.write(text)
@@ -79,22 +78,24 @@ class Application:
 
 
     def run_script_from_file(self):
-        self.save_script_to_file()
+        #self.save_script_to_file()
         # start thread so main window not going to freeze
         threading.Thread(target=self.run_script).start()
         self.label_is_script_executing.set("Script Exec\nYes")
+        self.button_run.config(state = 'disabled')
 
     def run_script(self):
-        sub_proc = subprocess.Popen(['python3', '-u', self.current_script_file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sub_proc = subprocess.Popen(['swift', 'script2.swift'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         thr1 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stdout]).start()
         thr2 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stderr]).start()
 
         poll = sub_proc.poll()
         while poll == None:
-            time.sleep(1.)
+            time.sleep(.2)
             poll = sub_proc.poll()
         self.return_code = poll
         self.label_returncode_update.set("Return Code\n" + str(self.return_code))
+        self.button_run.config(state = 'normal')
         self.label_is_script_executing.set("Script Exec\nNo")
 
 
@@ -102,7 +103,7 @@ class Application:
         while not self.q.empty():
             source, line = self.q.get()
             if line is None:
-                line = "\n"
+                line = ""
             self.text_output.config(state = 'normal')
             self.text_output.insert(tk.END,line)
             self.text_output.see("insert")
