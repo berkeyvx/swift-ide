@@ -123,6 +123,8 @@ class Application:
         word = self.text_editor.get(index, "insert")
         if self.swift_keywords.is_keyword(word):
             self.text_editor.tag_add("keyword", index, "%s+%dc" % (index,len(word)))
+        else:
+            self.text_editor.tag_remove("keyword", index, "%s+%dc" % (index,len(word)))
 
 
 
