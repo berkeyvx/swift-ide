@@ -21,6 +21,7 @@ class Application:
         self.window.minsize(680,680)
         self.window.configure(bg = "#1c3e7b")
 
+        # buttons
         self.frame_buttons = tk.Frame(master= self.window, height = 200, width = 200, bg = "#1c3e7b")
         self.button_save = tk.Button(master = self.frame_buttons, text = "Save", bg = "#1c3e7b", command = self.save_script_to_file)
         self.button_run = tk.Button(master = self.frame_buttons, text = "Run", bg = "#1c3e7b", command = self.run_script_from_file)
@@ -28,32 +29,39 @@ class Application:
         self.button_run.pack(side = "left", padx = 5, pady = 5)
         self.button_save.pack(side = "left", padx = 5, pady = 5)
 
+        # editor pane and output pane
         self.text_editor = tk.Text(self.window, bg = "#232614", foreground = "White", insertbackground='white')
         self.text_editor.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
         self.text_editor.tag_configure("keyword", foreground = "red")
         self.text_output = tk.Text(self.window, background = "Black", foreground = "White", height = 8)
         self.text_output.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
 
-
+        # indicators (return code and is script executing)
         self.frame_label = tk.Frame(master = self.window, bg = "#1c3e7b")
         self.frame_label.pack(side = "top", expand = False, fill = "both")
-
         self.label_returncode_update = tk.StringVar()
-        self.label_returncode = tk.Label(master = self.frame_label, textvariable = self.label_returncode_update, relief = tk.RAISED, bg = "#0000a0", foreground = "#ffffff")
+        self.label_returncode = tk.Label(master = self.frame_label, 
+                                            textvariable = self.label_returncode_update, 
+                                            bg = "#1c3e7b", foreground = "#ffffff")
+
         self.label_returncode_update.set("Return Code\n")
         self.label_returncode.pack(side = "left", padx = 3, pady = 3)
-
         self.label_is_script_executing = tk.StringVar()
-        self.label_script_executing = tk.Label(master = self.frame_label, textvariable = self.label_is_script_executing, relief = tk.RAISED, bg = "#0000a0", foreground = "#ffffff")
+        self.label_script_executing = tk.Label(master = self.frame_label,
+                                                textvariable = self.label_is_script_executing, 
+                                                bg = "#1c3e7b", foreground = "#ffffff")
+
         self.label_is_script_executing.set("Script Exec\nNo")
         self.label_script_executing.pack(side = "left", padx = 3, pady = 3)
 
+
+        # pane 
         self.text_output.insert(tk.END, 'Script Result:\n')
-        self.text_output.config(state = 'disabled')
-        
+        self.text_output.config(state = 'disabled')        
         self.text_editor.bind("<space>", self.swift_keywords_highlight)
         self.text_editor.insert(tk.END, "#!/usr/bin/env python3\n")
 
+        # handle output pane
         self.update()
 
     def save_script_to_file(self):
