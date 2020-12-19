@@ -16,44 +16,35 @@ class Application:
         self.swift_keywords = keywords.SwiftKeywords()
 
         self.window = master
-        self.window.title("TK")
-        self.window.geometry("740x670")
-        self.window.resizable(True, True)
-        self.window.minsize(740, 670)
-        self.window.maxsize(740,670)
+        self.window.title("JetBrains Swift Script Executing Tool")
+        self.window.minsize(680,680)
 
-
-
-        # create frame for buttons and create buttons
-        self.frame_buttons = tk.Frame(master = self.window, relief = tk.RAISED, bd = 1)
+        self.frame_buttons = tk.Frame(master= self.window, height = 200, width = 200)
         self.button_save = tk.Button(master = self.frame_buttons, text = "Save", command = self.save_script_to_file)
         self.button_run = tk.Button(master = self.frame_buttons, text = "Run", command = self.run_script_from_file)
+        self.frame_buttons.pack(side = "top", fill = "both", expand = False)
+        self.button_run.pack(side = "left", padx = 5, pady = 5)
+        self.button_save.pack(side = "left", padx = 5, pady = 5)
+
+        self.text_editor = tk.Text(self.window)
+        self.text_editor.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
+        self.text_editor.tag_configure("keyword", foreground = "red")
+        self.text_output = tk.Text(self.window, background = "Black", foreground = "White", height = 8)
+        self.text_output.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
+
+
+        self.frame_label = tk.Frame(master = self.window, bg = "Cyan")
+        self.frame_label.pack(side = "top", expand = False, fill = "both")
 
         self.label_returncode_update = tk.StringVar()
-        self.label_returncode = tk.Label(master = self.frame_buttons, textvariable = self.label_returncode_update, relief = tk.RAISED)
+        self.label_returncode = tk.Label(master = self.frame_label, textvariable = self.label_returncode_update, relief = tk.RAISED)
         self.label_returncode_update.set("Return Code\n")
-        self.label_returncode.grid(row = 2, column = 0, sticky = "ew", padx = 5, pady = 5)
+        self.label_returncode.pack(side = "left", padx = 3, pady = 3)
 
         self.label_is_script_executing = tk.StringVar()
-        self.label_returncode = tk.Label(master = self.frame_buttons, textvariable = self.label_is_script_executing, relief = tk.RAISED)
+        self.label_script_executing = tk.Label(master = self.frame_label, textvariable = self.label_is_script_executing, relief = tk.RAISED)
         self.label_is_script_executing.set("Script Exec\nNo")
-        self.label_returncode.grid(row = 3, column = 0, sticky = "ew", padx = 5, pady = 5)
-
-        # create frame for tk.Text editor and output
-        self.frame_text = tk.Frame(master = self.window, relief = tk.RAISED, bd = 1)
-        self.text_editor = tk.Text(self.frame_text, height = 30, width = 80)
-        self.text_output = tk.Text(self.frame_text, background = "Black", foreground = "White", height = 7, width = 80)
-        self.text_editor.tag_configure("keyword", foreground = "red")
-
-        #adjust buttons
-        self.button_save.grid(row = 0, column = 0, sticky = "ew", padx = 5, pady = 5)
-        self.button_run.grid(row = 1, column = 0, sticky = "ew", padx = 5, pady = 5)
-        self.frame_buttons.grid(row = 0, column = 0, sticky = "ns")
-
-        #adjust text editor and text output
-        self.text_editor.grid(row = 0, column = 1, sticky = "ew", padx = 10, pady = 10)
-        self.text_output.grid(row = 1, column = 1, sticky = "ew", padx = 5, pady = 5)
-        self.frame_text.grid(row = 0, column = 1, sticky = "ns")
+        self.label_script_executing.pack(side = "left", padx = 3, pady = 3)
 
         self.text_output.insert(tk.END, 'Script Result:\n')
         self.text_output.config(state = 'disabled')
@@ -83,7 +74,7 @@ class Application:
         self.label_is_script_executing.set("Script Exec\nYes")
 
     def run_script(self):
-        sub_proc = subprocess.Popen(['python3', '-u',self.current_script_file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sub_proc = subprocess.Popen(['python3', '-u', 'script.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         thr1 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stdout]).start()
         thr2 = threading.Thread(target=self.pipe_reader, args=[sub_proc.stderr]).start()
 
