@@ -1,5 +1,3 @@
-
-
 class SwiftKeywords(object):
     def __init__(self):
         self.keyword_list = {"break", "case", "continue", "default",

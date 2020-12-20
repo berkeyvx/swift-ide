@@ -11,7 +11,7 @@ class Application:
 
     # load main window of application
     def __init__(self, master):
-        self.current_script_file_name = None
+        self.current_script_file_name = "scr.swift"
         self.q = Queue()
         self.return_code = None;
         self.swift_keywords = keywords.SwiftKeywords()
@@ -22,8 +22,8 @@ class Application:
         self.window.configure(bg = "#1c3e7b")
 
         # load icons for buttons
-        self.run_icon = tk.PhotoImage(file = "rsz_run.png")
-        self.save_icon = tk.PhotoImage(file = "rsz_save.png")
+        self.run_icon = tk.PhotoImage(file = "resources/rsz_run.png")
+        self.save_icon = tk.PhotoImage(file = "resources/rsz_save.png")
 
         # buttons
         self.frame_buttons = tk.Frame(master= self.window, height = 200, width = 200, bg = "#1c3e7b")
@@ -69,12 +69,11 @@ class Application:
 
     def save_script_to_file(self):
         cwd = os.getcwd()
-        file_name = cwd + "/script2.swift" 
+        file_name = cwd + "/" + self.current_script_file_name
         with open(file_name, "w") as output_file:
             text = self.text_editor.get(1.0, tk.END)
             output_file.write(text)
 
-        self.current_script_file_name = file_name.split('/')[-1]
 
 
     def run_script_from_file(self):
@@ -135,3 +134,4 @@ if __name__ == '__main__':
     root = tk.Tk()
     app = Application(root)
     root.mainloop()
+    root.quit()
