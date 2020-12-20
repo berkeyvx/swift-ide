@@ -72,7 +72,7 @@ class Application:
                                             textvariable = self.label_returncode_update, 
                                             bg = "#1c3e7b", foreground = "#ffffff")
 
-        self.label_returncode_update.set("Return Code\n")
+        self.label_returncode_update.set("Return Code: NULL")
         self.label_returncode.pack(side = "left", padx = 3, pady = 3)
 
         # label for is script executing
@@ -81,7 +81,7 @@ class Application:
                                                 textvariable = self.label_is_script_executing, 
                                                 bg = "#1c3e7b", foreground = "#ffffff")
 
-        self.label_is_script_executing.set("Script Exec\nNo")
+        self.label_is_script_executing.set("Script Exec: No")
         self.label_script_executing.pack(side = "left", padx = 3, pady = 3)
 
 
@@ -112,7 +112,7 @@ class Application:
         self.text_output.config(state = 'disabled')
         # start thread so main window not going to freeze
         threading.Thread(target=self.button_run_script_thread).start()
-        self.label_is_script_executing.set("Script Exec\nYes")
+        self.label_is_script_executing.set("Script Exec: Yes")
         self.button_run.config(state = 'disabled')
 
 
@@ -127,9 +127,9 @@ class Application:
             poll = sub_proc.poll()
         self.script_return_code = poll
         self.output_pane_clickable_errors()
-        self.label_returncode_update.set("Return Code\n" + str(self.script_return_code))
+        self.label_returncode_update.set("Return Code: " + str(self.script_return_code))
         self.button_run.config(state = 'normal')
-        self.label_is_script_executing.set("Script Exec\nNo")
+        self.label_is_script_executing.set("Script Exec: No")
         sub_proc.kill()
 
 
