@@ -88,12 +88,9 @@ class Application:
         # pane config
         self.text_output.config(state = 'disabled')        
 
-        # check after every space if previous word is keyword of language
-        self.text_editor.bind("<space>", self.swift_keywords_highlight)
-
-        # refresh output pane every 0.1
+        # refresh output pane every 0.1, refresh editor pane every 0.3 sec
         self.update_output_pane()
-
+        self.update_editor_pane()
 
 
     def button_save_script_on_clicked(self):
@@ -144,18 +141,29 @@ class Application:
 
 
 
-    def swift_keywords_highlight(self, event):
-        index = self.text_editor.search(r'\s', "insert", backwards=True, regexp=True)
-        if index == "":
-            index = "1.0"
-        else:
-            index = self.text_editor.index("%s+1c" % index)
-        word = self.text_editor.get(index, "insert")
-        if self.swift_keywords.is_keyword(word):
-            self.text_editor.tag_add("keyword", index, "%s+%dc" % (index,len(word)))
-        else:
-            self.text_editor.tag_remove("keyword", index, "%s+%dc" % (index,len(word)))
-
+    def update_editor_pane(self):
+        self.text_editor.tag_remove("keyword","1.0",tk.END)
+        itr = "1.0"
+        last_space = "1.0"
+        prev_itr = itr;
+        while True:
+            itr = self.text_editor.search(" ",itr, tk.END)
+            if not itr:
+                break
+            if prev_itr.split(".")[0] != itr.split(".")[0]:
+                itr = itr.split(".")[0] + ".0"
+                itr = self.text_editor.search(" ",itr, tk.END)
+                last_space = itr.split(".")[0] + ".0"
+            last_itr = '%s+%dc' % (itr,len(" "))
+            print(itr, last_itr, last_space)
+            word = self.text_editor.get("%s" % last_space, itr)
+            if self.swift_keywords.is_keyword(word):
+                self.text_editor.tag_add("keyword",last_space, itr)
+            itr = last_itr
+            last_space = last_itr
+            prev_itr = itr
+        self.window.after(300, self.update_editor_pane)
+        
 
 
     def update_output_pane(self):
