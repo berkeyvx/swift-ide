@@ -86,7 +86,6 @@ class Application:
 
 
         # pane config
-        self.text_output.insert(tk.END, 'Script Result:\n')
         self.text_output.config(state = 'disabled')        
 
         # check after every space if previous word is keyword of language
@@ -108,6 +107,9 @@ class Application:
 
     def button_run_script_on_clicked(self):
         self.button_save_script_on_clicked()
+        self.text_output.config(state = 'normal')
+        self.text_output.delete('1.0', tk.END)
+        self.text_output.config(state = 'disabled')
         # start thread so main window not going to freeze
         threading.Thread(target=self.button_run_script_thread).start()
         self.label_is_script_executing.set("Script Exec\nYes")
