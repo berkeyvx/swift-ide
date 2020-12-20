@@ -5,6 +5,7 @@ import time
 from queue import *
 import keywords
 import os
+import re
 
 class Application:
 
@@ -58,6 +59,8 @@ class Application:
         self.text_editor.tag_configure("keyword", foreground = "red")
         self.text_output = tk.Text(self.window, background = "Black", foreground = "White", height = 8)
         self.text_output.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
+        self.text_output.tag_configure("error", foreground = "red")
+        self.text_output.tag_bind("error", "<Button-1>", self.error_move_cursor_text_editor)
 
         # indicators (return code and is script executing)
         self.frame_label = tk.Frame(master = self.window, bg = "#1c3e7b")
@@ -104,7 +107,7 @@ class Application:
 
 
     def button_run_script_on_clicked(self):
-        #self.button_save_script_on_clicked()
+        self.button_save_script_on_clicked()
         # start thread so main window not going to freeze
         threading.Thread(target=self.button_run_script_thread).start()
         self.label_is_script_executing.set("Script Exec\nYes")
@@ -113,7 +116,7 @@ class Application:
 
 
     def button_run_script_thread(self):
-        sub_proc = subprocess.Popen(['stdbuf', '-o0','swift', 'script2.swift'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sub_proc = subprocess.Popen(['stdbuf', '-o0','swift', self.current_script_file_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         threading.Thread(target=self.button_run_pipe_reader, args=[sub_proc]).start()
 
         poll = sub_proc.poll()
@@ -121,6 +124,7 @@ class Application:
             time.sleep(.2)
             poll = sub_proc.poll()
         self.script_return_code = poll
+        self.output_pane_clickable_errors()
         self.label_returncode_update.set("Return Code\n" + str(self.script_return_code))
         self.button_run.config(state = 'normal')
         self.label_is_script_executing.set("Script Exec\nNo")
@@ -162,6 +166,38 @@ class Application:
             self.text_output.see("insert")
             self.text_output.config(state = 'disabled')
         self.window.after(100, self.update_output_pane)
+
+
+
+    def output_pane_clickable_errors(self):
+        pattern = "swift:[0-9]+:[0-9]+:"
+        start = "1.0"
+        end = self.text_output.index(tk.END)
+        output = self.text_output.get(start, end)
+
+        indices = []
+        if output:
+            matches = re.finditer(pattern, output)
+            for match in matches:
+                match_start = self.text_output.index("%s+%dc" % (start, match.start()))
+                match_end = self.text_output.index("%s+%dc" % (start, match.end()))
+                self.text_output.tag_add("error",match_start, match_end)
+
+        
+
+    def error_move_cursor_text_editor(self, event):
+        x = event.widget.index("@%d,%d" % (event.x, event.y))
+        data = event.widget.tag_ranges("error")
+        z = zip(data[0::2], data[1::2])
+        for i,k in z:
+            # compare tag_randes with mouse event(x,y) and match with string
+            bool_1 = self.text_output.compare(x, ">=", str(i))
+            bool_2 = self.text_output.compare(x, "<=", str(k))
+            if bool_1 and bool_2:
+                error_code = self.text_output.get(i,k)
+        line_char = re.findall(r'\b\d+\b', error_code)
+        self.text_editor.mark_set("insert", "%d.%d" % (int(line_char[0]), int(line_char[1])))
+                
 
 
 
