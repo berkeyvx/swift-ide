@@ -61,6 +61,8 @@ class Application:
         self.text_output.pack(side = "top", expand = True, fill = "both", padx = 5, pady = 5)
         self.text_output.tag_configure("error", foreground = "red")
         self.text_output.tag_bind("error", "<Button-1>", self.error_move_cursor_text_editor)
+        self.text_output.tag_bind("error", "<Enter>", self.show_hand_cursor)
+        self.text_output.tag_bind("error", "<Leave>", self.hide_hand_cursor)
 
         # indicators (return code and is script executing)
         self.frame_label = tk.Frame(master = self.window, bg = "#1c3e7b")
@@ -155,7 +157,6 @@ class Application:
                 itr = self.text_editor.search(" ",itr, tk.END)
                 last_space = itr.split(".")[0] + ".0"
             last_itr = '%s+%dc' % (itr,len(" "))
-            print(itr, last_itr, last_space)
             word = self.text_editor.get("%s" % last_space, itr)
             if self.swift_keywords.is_keyword(word):
                 self.text_editor.tag_add("keyword",last_space, itr)
@@ -207,6 +208,21 @@ class Application:
                 error_code = self.text_output.get(i,k)
         line_char = re.findall(r'\b\d+\b', error_code)
         self.text_editor.mark_set("insert", "%d.%d" % (int(line_char[0]), int(line_char[1])))
+
+
+
+    def show_hand_cursor(self, event):
+        self.text_output.config(cursor="hand2")
+
+
+
+    def hide_hand_cursor(self, event):
+        self.text_output.config(cursor='')
+
+
+
+    def quit(self):
+        self.window.destroy()
                 
 
 
@@ -214,5 +230,6 @@ class Application:
 if __name__ == '__main__':
     root = tk.Tk()
     app = Application(root)
+    root.protocol("WM_DELETE_WINDOW", app.quit)
     root.mainloop()
     root.quit()
