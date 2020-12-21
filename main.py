@@ -8,8 +8,47 @@ import os
 import re
 
 class Application:
+    """
+        @variables
+        ----------
+        current_script_file_name : String
+            file name to be saved when clicked on button_run or button_save
 
-    # load main window of application
+        subprocess_pipe_q : Queue
+            for storing PIPE stdout and stderr when subprocess script execution
+
+        script_return_code : String
+            script return code
+
+        swift_keywords : SwiftKeywords() from keywords.py
+            Contains Swift keywoards(set O(1))
+
+        button_save : tk.Button
+            save editor pane to directory same as main.py
+                @methods
+                    button_save_script_on_clicked
+
+        button_run : tk.Button
+            run SWift script which is written on editor pane
+                @methods
+                    button_run_script_on_clicked()
+
+        text_editot : tk.Text
+            editor pane
+                @tags
+                    "keyword"
+
+        text_output : tk.Text
+            output pane(uneditable)
+                @tags
+                    "error"
+
+        label_returncode : tk.Label
+            script return code
+
+        label_script_executing : tk.Label
+            label for is script currently executing
+    """
     def __init__(self, master):
         
         self.current_script_file_name = "scr.swift"
@@ -116,7 +155,7 @@ class Application:
         self.button_run.config(state = 'disabled')
 
 
-
+    # called by button_run_script_on_clicked()
     def button_run_script_thread(self):
         sub_proc = subprocess.Popen(['stdbuf', '-o0','swift', self.current_script_file_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         threading.Thread(target=self.button_run_pipe_reader, args=[sub_proc]).start()
@@ -133,7 +172,7 @@ class Application:
         sub_proc.kill()
 
 
-
+    # called by button_run_script_thread()
     def button_run_pipe_reader(self, process):
         while True:
             output = process.stdout.readline()
