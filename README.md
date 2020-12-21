@@ -16,3 +16,6 @@ Note: Python 3 is required but i am not sure which version of python3 is require
 3. Indications(is script running and return code of last run) are located at the bottom
 4. Live output of the script as it executes
 5. Errors will be displayed from the execution if the script couldn't be interpreted
+
+### Check out youtube video
+[Video](https://www.youtube.com/watch?v=jvyNMOutCDc&feature=youtu.be)
