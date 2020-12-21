@@ -106,6 +106,7 @@ class Application:
 
     def button_run_script_on_clicked(self):
         self.button_save_script_on_clicked()
+        self.label_returncode_update.set("Return Code: NULL")
         self.text_output.config(state = 'normal')
         self.text_output.delete('1.0', tk.END)
         self.text_output.config(state = 'disabled')

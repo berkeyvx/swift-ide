@@ -4,7 +4,7 @@
 * Python 3.8
 * Tkinter (python3-tk)
 
-Note: Python 3 is required but i am not sure which version of python3 is required. Python 3.6.9 over will be 
+Note: Python 3 is required but i am not sure which version of python3 is required. Python 3.6.9 over will be fine
 
 ## How to run
 1. On terminal go to the directory where main.py is located
